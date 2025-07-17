@@ -5,8 +5,15 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace backEnd.Src.Models
 {
-    public class Comment(IMongoDbContext dbContext) : AbstractModel<Comment>(dbContext)
+    public class Comment : AbstractModel<Comment>
     {
+        public Comment() {}
+
+        public Comment(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
         /// <summary>
         /// Contenu textuel du commentaire
         /// </summary>

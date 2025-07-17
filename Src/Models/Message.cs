@@ -5,8 +5,14 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace backEnd.Src.Models
 {
-    public class Message(IMongoDbContext dbContext) : AbstractModel<Message>(dbContext)
+    public class Message : AbstractModel<Message>
     {
+        public Message() { }
+
+        public Message(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
         /// <summary>
         /// Expéditeur du message
         /// </summary>

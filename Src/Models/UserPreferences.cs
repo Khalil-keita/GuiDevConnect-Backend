@@ -7,8 +7,14 @@ namespace backEnd.Src.Models
     /// <summary>
     /// Préférences de l'utilisateur (sous-document)
     /// </summary>
-    public class UserPreferences(IMongoDbContext dbContext) : AbstractModel<UserPreferences>(dbContext)
+    public class UserPreferences : AbstractModel<UserPreferences>
     {
+        public UserPreferences() { }
+
+        public UserPreferences(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
         /// <summary>
         /// Thème préféré (light/dark)
         /// </summary>

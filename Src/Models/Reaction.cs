@@ -5,8 +5,15 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace backEnd.Src.Models
 {
-    public class Reaction(IMongoDbContext dbContext) : AbstractModel<Reaction>(dbContext)
+    public class Reaction : AbstractModel<Reaction>
     {
+        public Reaction() { }
+
+        public Reaction(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
         /// <summary>
         /// Utilisateur qui a réagi
         /// </summary>

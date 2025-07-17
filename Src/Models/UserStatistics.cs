@@ -7,8 +7,15 @@ namespace backEnd.Src.Models
     /// <summary>
     /// Statistiques de l'utilisateur (sous-document)
     /// </summary>
-    public class UserStatistics(IMongoDbContext dbContext) : AbstractModel<UserStatistics>(dbContext)
+    public class UserStatistics : AbstractModel<UserStatistics>
     {
+        public UserStatistics() { }
+
+        public UserStatistics(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
         /// <summary>
         /// Nombre total de posts
         /// </summary>

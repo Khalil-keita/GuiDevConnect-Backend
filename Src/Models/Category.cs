@@ -5,8 +5,14 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace backEnd.Src.Models
 {
-    public class Category(IMongoDbContext dbContext) : AbstractModel<Category>(dbContext)
+    public class Category : AbstractModel<Category>
     {
+        public Category() { }
+
+        public Category(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
         /// <summary>
         /// Nom affiché de la catégorie
         /// </summary>

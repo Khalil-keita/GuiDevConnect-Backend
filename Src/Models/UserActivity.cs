@@ -9,8 +9,15 @@ namespace backEnd.Src.Models
     /// <summary>
     /// Suivi des activités utilisateur
     /// </summary>
-    public class UserActivity(IMongoDbContext dbContext) : AbstractModel<UserActivity>(dbContext)
+    public class UserActivity : AbstractModel<UserActivity>
     {
+        public UserActivity() { }
+
+        public UserActivity(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
         /// <summary>
         /// Utilisateur concerné
         /// </summary>

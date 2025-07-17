@@ -5,8 +5,15 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace backEnd.Src.Models
 {
-    public class Notification(IMongoDbContext dbContext) : AbstractModel<Notification>(dbContext)
+    public class Notification : AbstractModel<Notification>
     {
+        public Notification() { }
+
+        public Notification(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
         /// <summary>
         /// Utilisateur destinataire
         /// </summary>

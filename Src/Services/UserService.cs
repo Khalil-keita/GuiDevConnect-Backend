@@ -175,6 +175,7 @@ namespace backEnd.Src.Services
             }
         }
 
+        //NotImplemented
         public Task<bool> ForgotPassword(ForgotPasswordDto forgotPasswordDto)
         {
             throw new NotImplementedException();
@@ -248,6 +249,7 @@ namespace backEnd.Src.Services
             }
         }
 
+        //NotImplemented
         public Task<bool> SetAvatar(string user_id, UpdateAvatarDto updateAvatarDto)
         {
             throw new NotImplementedException();
@@ -324,9 +326,9 @@ namespace backEnd.Src.Services
                 var user = await User.Query(_dbContext).Where(u => u.Id == user_id).FirstAsync()
                     ?? throw new NotFoundException("user", user_id);
 
-                user.Bio = userUpdateDto.FirstName;
-                user.Bio = userUpdateDto.LastName;
-                user.Bio = userUpdateDto.Email;
+                user.FirstName = userUpdateDto.FirstName!;
+                user.LastName = userUpdateDto.LastName!;
+                user.Email = userUpdateDto.Email;
 
                 await user.SetDbContext(_dbContext).SaveAsync();
 
@@ -341,6 +343,7 @@ namespace backEnd.Src.Services
             }
         }
 
+        //NotImplemented
         public Task<bool> UpdateUserPreferences(string user_id, UserPreferencesUpdateDto userPreferencesUpdate)
         {
             throw new NotImplementedException();

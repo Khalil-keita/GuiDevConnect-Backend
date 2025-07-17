@@ -8,8 +8,14 @@ namespace backEnd.Src.Models
     /// <summary>
     /// Système de badges/récompenses
     /// </summary>
-    public class Badge(IMongoDbContext dbContext) : AbstractModel<Badge>(dbContext)
+    public class Badge : AbstractModel<Badge>
     {
+        public Badge() { }
+
+        public Badge(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
         /// <summary>
         /// Nom du badge
         /// </summary>

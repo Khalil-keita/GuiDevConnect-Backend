@@ -10,12 +10,19 @@ namespace backEnd.Src.Models
     /// <summary>
     /// Représente un utilisateur du forum avec toutes les propriétés nécessaires
     /// </summary>
-    public class User(IMongoDbContext dbContext) : AbstractModel<User>(dbContext)
+    public class User : AbstractModel<Comment>
     {
-       /// <summary>
-       /// Nom d'utilisateur unique pour la connexion
-       /// </summary>
-       [BsonElement("username")]
+        public User() { }
+
+        public User(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        /// <summary>
+        /// Nom d'utilisateur unique pour la connexion
+        /// </summary>
+        [BsonElement("username")]
        public required string Username { get; set; }
 
        /// <summary>
@@ -131,10 +138,10 @@ namespace backEnd.Src.Models
        [BsonRepresentation(BsonType.ObjectId)]
        public string? StatisticsId { get; set; }
 
-        //public async Task<List<Comment>> Comments() => await HasMany<Comment>("autor_id");
-        //public async Task<List<Post>> Posts() => await HasMany<Post>("author_id");
-        //public async Task<UserPreferences> Preferences() => await BelongsTo<UserPreferences>();
-        //public async Task<UserStatistics> Statistics() => await BelongsTo<UserStatistics>();
-        //public async Task<UserStatistics> Bagdes() => await BelongsToMany<Badge>();
+        public async Task<List<Comment>> Comments() => await HasMany<Comment>("autor_id");
+        public async Task<List<Post>> Posts() => await HasMany<Post>("author_id");
+        public async Task<UserPreferences> Preferences() => await BelongsTo<UserPreferences>();
+        public async Task<UserStatistics> Statistics() => await BelongsTo<UserStatistics>();
+        public async Task<UserStatistics> Bagdes() => await BelongsToMany<Badge>();
     }
 }

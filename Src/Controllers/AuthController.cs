@@ -9,8 +9,20 @@ namespace backEnd.Src.Controllers
     {
         private readonly IAuth _auth = auth;
 
-        [HttpGet]
-        public IActionResult Get()
+        [HttpPost("login")]
+        public IActionResult Login()
+        {
+            return Ok();
+        }
+
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            return Ok();
+        }
+
+        [HttpPost("refresh-token")]
+        public IActionResult Refresh()
         {
             return Ok();
         }

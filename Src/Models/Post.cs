@@ -9,8 +9,15 @@ namespace backEnd.Src.Models
     /// <summary>
     /// Représente une publication dans le forum
     /// </summary>
-    public class Post(IMongoDbContext dbContext) : AbstractModel<Post>(dbContext)
+    public class Post : AbstractModel<Post>
     {
+        public Post() { }
+
+        public Post(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
         /// <summary>
         /// Titre de la publication (obligatoire)
         /// </summary>

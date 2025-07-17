@@ -8,8 +8,15 @@ namespace backEnd.Src.Models
     /// <summary>
     /// Marque-pages utilisateur pour threads/posts
     /// </summary>
-    public class UserBookmark(IMongoDbContext dbContext) : AbstractModel<UserBookmark>(dbContext)
+    public class UserBookmark : AbstractModel<UserBookmark>
     {
+        public UserBookmark() { }
+
+        public UserBookmark(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
         /// <summary>
         /// Utilisateur propriétaire du bookmark
         /// </summary>
