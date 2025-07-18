@@ -35,7 +35,7 @@ namespace backEnd.Src.Models
         /// </summary>
         [BsonElement("thread_id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public DateTime? ThreadId { get; set; }
+        public string? ThreadId { get; set; }
 
         /// <summary>
         /// Sondage multi-choix
