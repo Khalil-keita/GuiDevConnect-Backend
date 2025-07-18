@@ -28,7 +28,6 @@
 | Framework        | ASP.NET Core Web API              |
 | Authentification | JWT Bearer Token                  |
 | Base de données  |  MongoDB                          |
-| ORM              | Entity Framework Core             |
 | Documentation    | Swagger                           |
 | Cache            | Redis (optionnel)                 |
 | Messaging        | SignalR (temps réel)              |  
