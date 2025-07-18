@@ -110,17 +110,31 @@ namespace backEnd.Core.Mongo
         private static void CreateReportIndexes(IMongoDatabase database)
         {
             var collection = database.GetCollection<Report>("reports");
+
             var indexes = new List<CreateIndexModel<Report>>
-            {
-                new(Builders<Report>.IndexKeys.Ascending(r => r.ContentId)),
-                new(Builders<Report>.IndexKeys.Ascending(r => r.ContentType)),
-                new(Builders<Report>.IndexKeys.Ascending(r => r.Status)),
-                new(Builders<Report>.IndexKeys.Ascending(r => r.ReporterId)),
-                new(Builders<Report>.IndexKeys.Ascending(r => r.ModeratorId)),
-                new(Builders<Report>.IndexKeys.Combine(
+        {
+            // Index pour le statut des signalements
+            new(Builders<Report>.IndexKeys
+                .Combine(
                     Builders<Report>.IndexKeys.Ascending(r => r.Status),
-                    Builders<Report>.IndexKeys.Descending(r => r.CreatedAt)))
-            };
+                    Builders<Report>.IndexKeys.Descending(r => r.CreatedAt)
+                ),
+                new CreateIndexOptions { Name = "IX_Report_Status" }),
+
+            // Index polymorphe pour le contenu signalé
+            new(Builders<Report>.IndexKeys
+                .Combine(
+                    Builders<Report>.IndexKeys.Ascending(r => r.ContentType),
+                    Builders<Report>.IndexKeys.Ascending(r => r.ContentId)
+                ),
+                new CreateIndexOptions { Name = "IX_Report_Content" }),
+
+            // Index pour les rapports par utilisateur
+            new(Builders<Report>.IndexKeys
+                .Ascending(r => r.ReporterId),
+                new CreateIndexOptions { Name = "IX_Report_Reporter" })
+        };
+
             collection.Indexes.CreateMany(indexes);
         }
 
@@ -156,17 +170,34 @@ namespace backEnd.Core.Mongo
         private static void CreateNotificationIndexes(IMongoDatabase database)
         {
             var collection = database.GetCollection<Notification>("notifications");
+
             var indexes = new List<CreateIndexModel<Notification>>
-            {
-                new(Builders<Notification>.IndexKeys.Ascending(n => n.UserId)),
-                new(Builders<Notification>.IndexKeys.Ascending(n => n.IsRead)),
-                new(Builders<Notification>.IndexKeys.Combine(
+        {
+            // Index pour les requêtes utilisateur
+            new(Builders<Notification>.IndexKeys
+                .Combine(
                     Builders<Notification>.IndexKeys.Ascending(n => n.UserId),
-                    Builders<Notification>.IndexKeys.Descending(n => n.CreatedAt))),
-                new(Builders<Notification>.IndexKeys.Combine(
+                    Builders<Notification>.IndexKeys.Descending(n => n.CreatedAt)
+                ),
+                new CreateIndexOptions { Name = "IX_Notification_User" }),
+
+            // Index pour les marquages comme lus
+            new(Builders<Notification>.IndexKeys
+                .Combine(
                     Builders<Notification>.IndexKeys.Ascending(n => n.UserId),
-                    Builders<Notification>.IndexKeys.Ascending(n => n.IsRead)))
-            };
+                    Builders<Notification>.IndexKeys.Ascending(n => n.IsRead)
+                ),
+                new CreateIndexOptions { Name = "IX_Notification_ReadStatus" }),
+
+            // Index polymorphe pour les sources
+            new(Builders<Notification>.IndexKeys
+                .Combine(
+                    Builders<Notification>.IndexKeys.Ascending(n => n.RelatedId),
+                    Builders<Notification>.IndexKeys.Ascending(n => n.RelatedType)
+                ),
+                new CreateIndexOptions { Name = "IX_Notification_Source" })
+        };
+
             collection.Indexes.CreateMany(indexes);
         }
 
@@ -184,30 +215,68 @@ namespace backEnd.Core.Mongo
         private static void CreateReactionIndexes(IMongoDatabase database)
         {
             var collection = database.GetCollection<Reaction>("reactions");
+
             var indexes = new List<CreateIndexModel<Reaction>>
-            {
-                new(Builders<Reaction>.IndexKeys.Ascending(r => r.UserId)),
-                new(Builders<Reaction>.IndexKeys.Combine(
+        {
+            // Index composite pour les requêtes par cible
+            new(Builders<Reaction>.IndexKeys
+                .Combine(
                     Builders<Reaction>.IndexKeys.Ascending(r => r.TargetType),
-                    Builders<Reaction>.IndexKeys.Ascending(r => r.TargetId))),
-                new(Builders<Reaction>.IndexKeys.Combine(
-                    Builders<Reaction>.IndexKeys.Ascending(r => r.TargetId),
-                    Builders<Reaction>.IndexKeys.Ascending(r => r.Emoji)))
-            };
+                    Builders<Reaction>.IndexKeys.Ascending(r => r.TargetId)
+                ),
+                new CreateIndexOptions { Name = "IX_Reaction_Target" }),
+
+            // Index pour les statistiques utilisateur
+            new(Builders<Reaction>.IndexKeys
+                .Combine(
+                    Builders<Reaction>.IndexKeys.Ascending(r => r.UserId),
+                    Builders<Reaction>.IndexKeys.Ascending(r => r.TargetType)
+                ),
+                new CreateIndexOptions { Name = "IX_Reaction_UserType" }),
+
+            // Index pour les emojis populaires
+            new(Builders<Reaction>.IndexKeys
+                .Combine(
+                    Builders<Reaction>.IndexKeys.Ascending(r => r.Emoji),
+                    Builders<Reaction>.IndexKeys.Descending(r => r.CreatedAt)
+                ),
+                new CreateIndexOptions { Name = "IX_Reaction_Emoji" })
+        };
+
             collection.Indexes.CreateMany(indexes);
         }
 
         private static void CreateUserActivityIndexes(IMongoDatabase database)
         {
             var collection = database.GetCollection<UserActivity>("user_activities");
+
             var indexes = new List<CreateIndexModel<UserActivity>>
-            {
-                new(Builders<UserActivity>.IndexKeys.Ascending(a => a.UserId)),
-                new(Builders<UserActivity>.IndexKeys.Descending(a => a.CreatedAt)),
-                new(Builders<UserActivity>.IndexKeys.Combine(
+        {
+            // Index pour l'historique utilisateur
+            new(Builders<UserActivity>.IndexKeys
+                .Combine(
                     Builders<UserActivity>.IndexKeys.Ascending(a => a.UserId),
-                    Builders<UserActivity>.IndexKeys.Descending(a => a.CreatedAt)))
-            };
+                    Builders<UserActivity>.IndexKeys.Descending(a => a.CreatedAt)
+                ),
+                new CreateIndexOptions { Name = "IX_UserActivity_User" }),
+
+            // Index polymorphe pour les cibles d'activité
+            new(Builders<UserActivity>.IndexKeys
+                .Combine(
+                    Builders<UserActivity>.IndexKeys.Ascending(a => a.TargetType),
+                    Builders<UserActivity>.IndexKeys.Ascending(a => a.TargetId)
+                ),
+                new CreateIndexOptions { Name = "IX_UserActivity_Target" }),
+
+            // Index pour les analyses d'activité
+            new(Builders<UserActivity>.IndexKeys
+                .Combine(
+                    Builders<UserActivity>.IndexKeys.Ascending(a => a.ActivityType),
+                    Builders<UserActivity>.IndexKeys.Descending(a => a.CreatedAt)
+                ),
+                new CreateIndexOptions { Name = "IX_UserActivity_Type" })
+        };
+
             collection.Indexes.CreateMany(indexes);
         }
 
