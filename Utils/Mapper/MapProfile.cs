@@ -10,8 +10,8 @@ namespace backEnd.Utils.Mapper
         {
             CreateMap<UserBookmark, BookMarkDto>();
             CreateMap<UserActivity, UserActivityDto>();
-            CreateMap<UserPreferences, UserPreferencesDto>();
-            CreateMap<UserStatistics, UserStatisticsDto>();
+            CreateMap<UserPreference, UserPreferencesDto>();
+            CreateMap<UserStatistic, UserStatisticsDto>();
             CreateMap<User, UserDto>();
         }
     }

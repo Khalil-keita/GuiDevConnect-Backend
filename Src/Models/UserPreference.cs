@@ -1,5 +1,6 @@
 ﻿using backEnd.Core.Model;
 using backEnd.Core.Mongo;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace backEnd.Src.Models
@@ -7,14 +8,22 @@ namespace backEnd.Src.Models
     /// <summary>
     /// Préférences de l'utilisateur (sous-document)
     /// </summary>
-    public class UserPreferences : AbstractModel<UserPreferences>
+    public class UserPreference : AbstractModel<UserPreference>
     {
-        public UserPreferences() { }
+        public UserPreference() { }
 
-        public UserPreferences(IMongoDbContext dbContext)
+        public UserPreference(IMongoDbContext dbContext)
         {
             _dbContext = dbContext;
         }
+
+        /// <summary>
+        /// Utilisateur associé
+        /// </summary>
+        [BsonElement("user_id")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string UserId { get; set; }
+
         /// <summary>
         /// Thème préféré (light/dark)
         /// </summary>

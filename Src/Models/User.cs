@@ -1,5 +1,6 @@
 ﻿using backEnd.Core.Model;
 using backEnd.Core.Mongo;
+using backEnd.Src.Dtos;
 using backEnd.Utils;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
@@ -10,44 +11,37 @@ namespace backEnd.Src.Models
     /// <summary>
     /// Représente un utilisateur du forum avec toutes les propriétés nécessaires
     /// </summary>
-    public class User : AbstractModel<Comment>
+    public class User : AbstractModel<User>
     {
-        public User() { }
-
-        public User(IMongoDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
         /// <summary>
         /// Nom d'utilisateur unique pour la connexion
         /// </summary>
         [BsonElement("username")]
-       public required string Username { get; set; }
+       public string? Username { get; set; }
 
        /// <summary>
        /// Email de l'utilisateur (unique)
        /// </summary>
        [BsonElement("email")]
-       public required string Email { get; set; }
+       public string? Email { get; set; }
 
        /// <summary>
        /// Mot de passe hashé
        /// </summary>
        [BsonElement("password_hash")]
-       public required string PasswordHash { get; set; }
+       public string? PasswordHash { get; set; }
 
        /// <summary>
        /// Prénom de l'utilisateur
        /// </summary>
        [BsonElement("first_name")]
-       public required string FirstName { get; set; }
+       public string? FirstName { get; set; }
 
        /// <summary>
        /// Nom de famille de l'utilisateur
        /// </summary>
        [BsonElement("last_name")]
-       public required string LastName { get; set; }
+       public string? LastName { get; set; }
 
        /// <summary>
        /// Date de dernière connexion
@@ -78,7 +72,7 @@ namespace backEnd.Src.Models
        /// Coordonnées GPS
        /// </summary>
        [BsonElement("coordinates")]
-       public GeoJson2DCoordinates? Coordinates { get; set; }
+       public Coordinates? Coordinates { get; set; }
 
        /// <summary>
        /// Statut de vérification de l'email
@@ -124,24 +118,28 @@ namespace backEnd.Src.Models
        [BsonElement("ban_reason")]
        public string? BanReason { get; set; }
 
-       /// <summary>
-       /// Préférences de l'utilisateur
-       /// </summary>
-       [BsonElement("preferences_id")]
-       [BsonRepresentation(BsonType.ObjectId)]
-       public string? PreferencesId { get; set; }
+        public User() { }
 
-       /// <summary>
-       /// Statistiques de l'utilisateur
-       /// </summary>
-       [BsonElement("statistics_id")]
-       [BsonRepresentation(BsonType.ObjectId)]
-       public string? StatisticsId { get; set; }
+        public User(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
 
-        public async Task<List<Comment>> Comments() => await HasMany<Comment>("autor_id");
         public async Task<List<Post>> Posts() => await HasMany<Post>("author_id");
-        public async Task<UserPreferences> Preferences() => await BelongsTo<UserPreferences>();
-        public async Task<UserStatistics> Statistics() => await BelongsTo<UserStatistics>();
-        public async Task<UserStatistics> Bagdes() => await BelongsToMany<Badge>();
+        public async Task<List<Comment>> Comments() => await HasMany<Comment>("author_id");
+        public async Task<List<Thread>> Threads() => await HasMany<Thread>("creator_id");
+        public async Task<List<Reaction>> Reactions() => await HasMany<Reaction>("user_id");
+        public async Task<List<Message>> SentMessages() => await HasMany<Message>("sender_id");
+        public async Task<List<Message>> ReceivedMessages() => await HasMany<Message>("receiver_id");
+        public async Task<List<Report>> Reports() => await HasMany<Report>("reporter_id");
+        public async Task<UserPreference> Preferences() => await HasOne<UserPreference>("user_id");
+        public async Task<UserStatistic> Statistics() => await HasOne<UserStatistic>("user_id");
+        public async Task<Ranking> Ranking() => await HasOne<Ranking>("user_id");
+        public async Task<List<UserActivity>> Activities() => await HasMany<UserActivity>("user_id");
+        public async Task<List<UserBookmark>> Bookmarks() => await HasMany<UserBookmark>("user_id");
+        public async Task<List<Notification>> Notifications() => await HasMany<Notification>("user_id");
+        public async Task<List<Badge>> Badges() => await BelongsToMany<Badge>("user_badges");
+        public async Task<List<Ban>> Bans() => await HasMany<Ban>("user_id");
+        public async Task<List<PollOption>> VotedPolls() => await BelongsToMany<PollOption>("voter_ids");
     }
 }

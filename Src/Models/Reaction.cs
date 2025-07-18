@@ -7,6 +7,38 @@ namespace backEnd.Src.Models
 {
     public class Reaction : AbstractModel<Reaction>
     {
+        /// <summary>
+        /// Utilisateur qui a réagi
+        /// </summary>
+        [BsonElement("user_id")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string? UserId { get; set; }
+
+        /// <summary>
+        /// Cible de la réaction (post/comment)
+        /// </summary>
+        [BsonElement("target_id")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string? TargetId { get; set; }
+
+        /// <summary>
+        /// Type de cible ('post' ou 'comment')
+        /// </summary>
+        [BsonElement("target_type")]
+        public string? TargetType { get; set; }
+
+        /// <summary>
+        /// Type de réaction ('like', 'love', etc.)
+        /// </summary>
+        [BsonElement("reaction_type")]
+        public string ReactionType { get; set; } = "like";
+
+        /// <summary>
+        /// Emoji associé
+        /// </summary>
+        [BsonElement("emoji")]
+        public string? Emoji { get; set; }
+
         public Reaction() { }
 
         public Reaction(IMongoDbContext dbContext)
@@ -14,46 +46,9 @@ namespace backEnd.Src.Models
             _dbContext = dbContext;
         }
 
-        /// <summary>
-        /// Utilisateur qui a réagi
-        /// </summary>
-        [BsonElement("user_id")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public required string UserId { get; set; }
-
-        /// <summary>
-        /// Cible de la réaction (post/comment)
-        /// </summary>
-        [BsonElement("target_id")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public required string TargetId { get; set; }
-
-        /// <summary>
-        /// Type de cible ('post' ou 'comment')
-        /// </summary>
-        [BsonElement("target_type")]
-        public required ReactionTargetType TargetType { get; set; }
-
-        /// <summary>
-        /// Type de réaction ('like', 'love', etc.)
-        /// </summary>
-        [BsonElement("reaction_type")]
-        public ReactionType ReactionType { get; set; } = ReactionType.Like;
+        public async Task<User> User() => await BelongsTo<User>("user_id");
+        public async Task<Post> PostTarget() => await BelongsTo<Post>("target_id");
+        public async Task<Comment> CommentTarget() => await BelongsTo<Comment>("target_id");
     }
 
-    public enum ReactionTargetType
-    {
-        Post,
-        Comment
-    }
-
-    public enum ReactionType
-    {
-        Like,
-        Love,
-        Laugh,
-        Wow,
-        Sad,
-        Angry
-    }
 }

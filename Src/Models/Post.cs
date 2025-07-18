@@ -11,45 +11,38 @@ namespace backEnd.Src.Models
     /// </summary>
     public class Post : AbstractModel<Post>
     {
-        public Post() { }
-
-        public Post(IMongoDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
         /// <summary>
         /// Titre de la publication (obligatoire)
         /// </summary>
         [BsonElement("title")]
-        public required string Title { get; set; }
+        public string? Title { get; set; }
 
         /// <summary>
         /// Contenu textuel de la publication (markdown/HTML)
         /// </summary>
         [BsonElement("content")]
-        public required string Content { get; set; }
+        public string? Content { get; set; }
 
         /// <summary>
         /// Référence à l'auteur de la publication
         /// </summary>
         [BsonElement("author_id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public required string AuthorId { get; set; }
-
-        /// <summary>
-        /// Liste des tags associés
-        /// </summary>
-        [BsonElement("tag_ids")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public List<string> TagIds { get; set; } = [];
+        public string? AuthorId { get; set; }
 
         /// <summary>
         /// Catégorie principale de la publication
         /// </summary>
         [BsonElement("category_id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public required string CategoryId { get; set; }
+        public string? CategoryId { get; set; }
+
+        /// <summary>
+        /// Thread principale de la publication
+        /// </summary>
+        [BsonElement("thread_id")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string? ThreadId { get; set; }
 
         /// <summary>
         /// Nombre total de vues
@@ -93,6 +86,20 @@ namespace backEnd.Src.Models
         /// </summary>
         [BsonElement("attachments")]
         public List<PostAttachment> Attachments { get; set; } = [];
+
+        public Post() { }
+
+        public Post(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        public async Task<User> Author() => await BelongsTo<User>("author_id");
+        public async Task<Thread> Thread() => await BelongsTo<Thread>("thread_id");
+        public async Task<List<Comment>> Comments() => await HasMany<Comment>("post_id");
+        public async Task<List<Reaction>> Reactions() => await HasMany<Reaction>("target_id");
+        public async Task<List<Report>> Reports() => await HasMany<Report>("content_id");
+        public async Task<List<Tag>> Tags() => await BelongsToMany<Tag>("post_tags");
     }
 
     public class PostAttachment

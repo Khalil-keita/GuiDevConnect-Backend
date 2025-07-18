@@ -11,38 +11,31 @@ namespace backEnd.Src.Models
     /// </summary>
     public class UserActivity : AbstractModel<UserActivity>
     {
-        public UserActivity() { }
-
-        public UserActivity(IMongoDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
         /// <summary>
         /// Utilisateur concerné
         /// </summary>
         [BsonElement("user_id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public required string UserId { get; set; }
+        public string? UserId { get; set; }
 
         /// <summary>
         /// Type d'activité ('login', 'post', 'vote', etc.)
         /// </summary>
         [BsonElement("activity_type")]
-        public required string ActivityType { get; set; }
+        public string? ActivityType { get; set; }
 
         /// <summary>
         /// ID de l'entité concernée
         /// </summary>
         [BsonElement("target_id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public required string TargetId { get; set; }
+        public string? TargetId { get; set; }
 
         /// <summary>
         /// Type d'entité ('thread', 'post', etc.)
         /// </summary>
         [BsonElement("target_type")]
-        public required string TargetType { get; set; }
+        public string? TargetType { get; set; }
 
         /// <summary>
         /// Adresse IP (hashée)
@@ -61,5 +54,16 @@ namespace backEnd.Src.Models
         /// </summary>
         [BsonElement("coordinates")]
         public Coordinates? Coordinates { get; set; }
+
+        public UserActivity() { }
+
+        public UserActivity(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        public async Task<User> User() => await BelongsTo<User>("user_id");
+        public async Task<Post> TargetPost() => await BelongsTo<Post>("target_id");
+        public async Task<Thread> TargetThread() => await BelongsTo<Thread>("target_id");
     }
 }

@@ -8,8 +8,14 @@ namespace backEnd.Src.Models
     /// <summary>
     /// Association utilisateur-badge
     /// </summary>
-    public class UserBadge(IMongoDbContext dbContext) : AbstractModel<UserBadge>(dbContext)
+    public class UserBadge : AbstractModel<UserBadge>
     {
+        public UserBadge() { }
+
+        public UserBadge(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
 
         [BsonElement("user_id")]
         [BsonRepresentation(BsonType.ObjectId)]

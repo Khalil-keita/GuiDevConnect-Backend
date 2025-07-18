@@ -7,13 +7,6 @@ namespace backEnd.Src.Models
 {
     public class Comment : AbstractModel<Comment>
     {
-        public Comment() {}
-
-        public Comment(IMongoDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
         /// <summary>
         /// Contenu textuel du commentaire
         /// </summary>
@@ -46,6 +39,23 @@ namespace backEnd.Src.Models
         /// </summary>
         [BsonElement("like_count")]
         public int LikeCount { get; set; } = 0;
+
+        public Comment() { }
+
+        public Comment(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+
+        public async Task<User> Author() => await BelongsTo<User>("author_id");
+        public async Task<Post> Post() => await BelongsTo<Post>("post_id");
+        public async Task<List<Reaction>> Reactions() => await HasMany<Reaction>("target_id");
+        public async Task<List<Report>> Reports() => await HasMany<Report>("content_id");
+        public async Task<Comment> Parent() => await BelongsTo<Comment>("parent_id");
+        public async Task<List<Comment>> Replies() => await HasMany<Comment>("parent_id");
+
+
 
     }
 }

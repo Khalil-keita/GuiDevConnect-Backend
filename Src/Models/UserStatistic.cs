@@ -1,5 +1,6 @@
 ﻿using backEnd.Core.Model;
 using backEnd.Core.Mongo;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace backEnd.Src.Models
@@ -7,20 +8,27 @@ namespace backEnd.Src.Models
     /// <summary>
     /// Statistiques de l'utilisateur (sous-document)
     /// </summary>
-    public class UserStatistics : AbstractModel<UserStatistics>
+    public class UserStatistic : AbstractModel<UserStatistic>
     {
-        public UserStatistics() { }
+        public UserStatistic() { }
 
-        public UserStatistics(IMongoDbContext dbContext)
+        public UserStatistic(IMongoDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
         /// <summary>
-        /// Nombre total de posts
+        /// Utilisateur associé
         /// </summary>
-        [BsonElement("post_count")]
-        public int PostCount { get; set; } = 0;
+        [BsonElement("user_id")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string UserId { get; set; } 
+
+        /// <summary>
+        /// Repitation
+        /// </summary>
+        [BsonElement("reputation")]
+        public string Reputation { get; set; } 
 
         /// <summary>
         /// Nombre total de commentaires

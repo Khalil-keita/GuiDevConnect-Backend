@@ -10,42 +10,43 @@ namespace backEnd.Src.Models
     /// </summary>
     public class Badge : AbstractModel<Badge>
     {
+        /// <summary>
+        /// Nom du badge
+        /// </summary>
+        [BsonElement("name")]
+        public string? Name { get; set; }
+
+        /// <summary>
+        /// Description
+        /// </summary>
+        [BsonElement("description")]
+        public string? Description { get; set; }
+
+        /// <summary>
+        /// Icône (URL ou référence)
+        /// </summary>
+        [BsonElement("icon")]
+        public string? Icon { get; set; }
+
+        /// <summary>
+        /// Critère d'obtention
+        /// </summary>
+        [BsonElement("criteria")]
+        public string? Criteria { get; set; }
+
+        /// <summary>
+        /// Rareté ('common', 'rare', 'epic', 'legendary')
+        /// </summary>
+        [BsonElement("rarity")]
+        public string? Rarity { get; set; } = "common";
+
         public Badge() { }
 
         public Badge(IMongoDbContext dbContext)
         {
             _dbContext = dbContext;
         }
-        /// <summary>
-        /// Nom du badge
-        /// </summary>
-        [BsonElement("name")]
-        public required string Name { get; set; }
 
-        /// <summary>
-        /// Description
-        /// </summary>
-        [BsonElement("description")]
-        public required string Description { get; set; }
-
-        /// <summary>
-        /// Icône (URL ou référence)
-        /// </summary>
-        [BsonElement("icon")]
-        public required string Icon { get; set; }
-
-        /// <summary>
-        /// Critère d'obtention
-        /// </summary>
-        [BsonElement("criteria")]
-        public required string Criteria { get; set; }
-
-        /// <summary>
-        /// Rareté ('common', 'rare', 'epic', 'legendary')
-        /// </summary>
-        [BsonElement("rarity")]
-        public string Rarity { get; set; } = "common";
+        public async Task<List<User>> Users() => await BelongsToMany<User>("user_badges");
     }
-
-    
 }

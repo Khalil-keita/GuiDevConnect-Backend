@@ -7,29 +7,23 @@ namespace backEnd.Src.Models
 {
     public class Category : AbstractModel<Category>
     {
-        public Category() { }
-
-        public Category(IMongoDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
         /// <summary>
         /// Nom affiché de la catégorie
         /// </summary>
         [BsonElement("name")]
-        public required string Name { get; set; }
+        public string? Name { get; set; }
 
         /// <summary>
         /// Description courte
         /// </summary>
         [BsonElement("description")]
-        public required string Description { get; set; }
+        public string? Description { get; set; }
 
         /// <summary>
         /// Slug URL-friendly
         /// </summary>
         [BsonElement("slug")]
-        public required string Slug { get; set; }
+        public string? Slug { get; set; }
 
         /// <summary>
         /// Ordre d'affichage dans les listes
@@ -54,5 +48,14 @@ namespace backEnd.Src.Models
         /// </summary>
         [BsonElement("color_code")]
         public string ColorCode { get; set; } = "#3498db";
+
+        public Category() { }
+
+        public Category(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        public async Task<List<Thread>> Threads() => await HasMany<Thread>("category_id");
     }
 }

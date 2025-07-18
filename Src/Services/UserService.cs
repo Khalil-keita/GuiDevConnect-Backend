@@ -25,24 +25,24 @@ namespace backEnd.Src.Services
 
                 if (users.Count == 0) return [];
 
-                var presferencesTask = UserPreferences.Query(_dbContext).GetAsync();
-                var statisticsTask = UserStatistics.Query(_dbContext).GetAsync();
+                var presferencesTask = UserPreference.Query(_dbContext).GetAsync();
+                var statisticsTask = UserStatistic.Query(_dbContext).GetAsync();
 
                 await Task.WhenAll(presferencesTask, statisticsTask);
 
                 var preferencesDict = (await presferencesTask)
-                        ?.ToDictionary(p => p.Id!, p => _mapper.Map<UserPreferencesDto>(p));
+                        ?.ToDictionary(p => p.UserId!, p => _mapper.Map<UserPreferencesDto>(p));
                 var statisticsDict = (await statisticsTask)
-                        ?.ToDictionary(s => s.Id!, s => _mapper.Map<UserStatisticsDto>(s));
+                        ?.ToDictionary(s => s.UserId!, s => _mapper.Map<UserStatisticsDto>(s));
 
                 var usersDto = users.Select(u =>
                 {
                     var dto = _mapper.Map<UserDto>(u);
 
-                    if (preferencesDict!.TryGetValue(u.PreferencesId!, out var preferences))
+                    if (preferencesDict!.TryGetValue(u.Id!, out var preferences))
                         dto.Preferences = preferences;
 
-                    if (statisticsDict!.TryGetValue(u.StatisticsId!, out var statistics))
+                    if (statisticsDict!.TryGetValue(u.Id!, out var statistics))
                         dto.Statistics = statistics;
 
                     return dto;
@@ -62,7 +62,8 @@ namespace backEnd.Src.Services
 
         public async Task<bool> CreateAsync(UserCreateDto userCreateDto)
         {
-            //var session = await _dbContext.StartSessionAsync();
+            var session = await _dbContext.StartSessionAsync();
+            session.StartTransaction();
             try
             {
                 _logger.LogInformation("Debut de la création du utilisateur.");
@@ -86,14 +87,6 @@ namespace backEnd.Src.Services
                 if (existUserName != null)
                     throw new BadRequestException("Ce nom utilisateur est déja utilisé par un autre membre.");
 
-                //_ = new UserPreferences(_dbContext).SaveAsync(session);
-                //_ = new UserStatistics(_dbContext).SaveAsync(session);
-                
-                var preferences = new UserPreferences(_dbContext);
-                var statistics = new UserStatistics(_dbContext);
-
-               await Task.WhenAll(preferences.SaveAsync(), statistics.SaveAsync());
-
                 var user = new User(_dbContext)
                 {
                     Email = userCreateDto.Email,
@@ -101,14 +94,17 @@ namespace backEnd.Src.Services
                     LastName = userCreateDto.LastName,
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword(userCreateDto.Password, BCrypt.Net.SaltRevision.Revision2X),
                     Username = userCreateDto.Username,
-                    PreferencesId = preferences.Id,
-                    StatisticsId = statistics.Id
                 };
 
-                //await user.SaveAsync(session);
-                await user.SaveAsync();
+                await user.SaveAsync(session);
 
-                //await session.CommitTransactionAsync();
+                var preferences = new UserPreference(_dbContext) { UserId = user.Id};
+                var statistics = new UserStatistic(_dbContext) { UserId = user.Id };
+
+                await Task.WhenAll(preferences.SaveAsync(session), statistics.SaveAsync(session));
+
+
+                await session.CommitTransactionAsync();
 
                 _logger.LogInformation("Création du utilisateur terminée avec succès.");
 
@@ -118,8 +114,8 @@ namespace backEnd.Src.Services
             catch (Exception ex)
             {
                 _logger.LogError("Erreur lors de la création du utilisateur. Errer: {ex} ", ex);
-                //if(session.IsInTransaction)
-                //    await session.AbortTransactionAsync();
+                if(session.IsInTransaction)
+                    await session.AbortTransactionAsync();
                 
                 throw;
             }
@@ -130,7 +126,8 @@ namespace backEnd.Src.Services
             if (string.IsNullOrEmpty(user_id))
                 throw new ArgumentNullException(nameof(user_id));
 
-            //var session = await _dbContext.StartSessionAsync();
+            var session = await _dbContext.StartSessionAsync();
+            session.StartTransaction();
             try
             {
                 _logger.LogInformation("Debut de la suppréssion de l'utilisateur.");
@@ -138,11 +135,11 @@ namespace backEnd.Src.Services
                 var user = await User.Query(_dbContext).Where(u => u.Id == user_id).FirstAsync()
                     ?? throw new NotFoundException("user", user_id);
 
-                var preferencesTask = UserPreferences.Query(_dbContext)
-                    .Where(u => u.Id == user.PreferencesId).FirstAsync();
+                var preferencesTask = UserPreference.Query(_dbContext)
+                    .Where(p => p.UserId == user.Id).FirstAsync();
 
-                var statisticsTask = UserStatistics.Query(_dbContext)
-                   .Where(u => u.Id == user.StatisticsId).FirstAsync();
+                var statisticsTask = UserStatistic.Query(_dbContext)
+                   .Where(s => s.Id == user.Id).FirstAsync();
 
                 await Task.WhenAll(statisticsTask, preferencesTask);
 
@@ -150,17 +147,14 @@ namespace backEnd.Src.Services
                 var preferences = (await preferencesTask);
 
                 await Task.WhenAll(
-                    //statistics.DeleteAsync(session);
-                     statistics.SetDbContext(_dbContext).DeleteAsync(),
+                     statistics.SetDbContext(_dbContext).DeleteAsync(session),
 
-                    //preferences.DeleteAsync(session);
-                     preferences.SetDbContext(_dbContext).DeleteAsync(),
+                     preferences.SetDbContext(_dbContext).DeleteAsync(session),
 
-                    //user.DeleteAsync(session);
-                     user.SetDbContext(_dbContext).DeleteAsync()
+                     user.SetDbContext(_dbContext).DeleteAsync(session)
                  );
 
-                //await session.CommitTransactionAsync();
+                await session.CommitTransactionAsync();
 
                 _logger.LogInformation("Suppréssion de l'utilisateur terminée avec succès.");
 
@@ -169,8 +163,8 @@ namespace backEnd.Src.Services
             catch (Exception ex)
             {
                 _logger.LogError("Erreur lors de la suppréssion de l'utilisateur. Errer: {ex} ", ex);
-                //if(session.IsInTransaction)
-                //    await session.AbortTransactionAsync();
+                if(session.IsInTransaction)
+                    await session.AbortTransactionAsync();
                 throw;
             }
         }
@@ -193,11 +187,11 @@ namespace backEnd.Src.Services
                 var user = await User.Query(_dbContext).Where(u => u.Id == user_id).FirstAsync()
                     ?? throw new NotFoundException("user", user_id);
 
-                var preferencesTask = UserPreferences.Query(_dbContext)
-                    .Where(u => u.Id == user.PreferencesId).FirstAsync();
+                var preferencesTask = UserPreference.Query(_dbContext)
+                    .Where(p => p.UserId == user.Id).FirstAsync();
 
-                var statisticsTask = UserStatistics.Query(_dbContext)
-                   .Where(u => u.Id == user.StatisticsId).FirstAsync();
+                var statisticsTask = UserStatistic.Query(_dbContext)
+                   .Where(s => s.UserId == user.Id).FirstAsync();
 
                 await Task.WhenAll(statisticsTask, preferencesTask);
 

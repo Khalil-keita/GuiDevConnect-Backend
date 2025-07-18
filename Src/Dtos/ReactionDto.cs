@@ -12,9 +12,9 @@ namespace backEnd.Src.Dtos
         public required string TargetId { get; set; }
 
         [Required]
-        public ReactionTargetType TargetType { get; set; }
+        public required string TargetType { get; set; }
 
-        public ReactionType ReactionType { get; set; } = ReactionType.Like;
+        public required string ReactionType { get; set; }
     }
     public class ReactionDto: AbstractDto
     {
@@ -22,9 +22,9 @@ namespace backEnd.Src.Dtos
 
         public required string TargetId { get; set; }
 
-        public ReactionTargetType TargetType { get; set; }
+        public required string TargetType { get; set; }
 
-        public ReactionType ReactionType { get; set; } = ReactionType.Like;
+        public string ReactionType { get; set; } = "like";
     }
 
 }

@@ -131,7 +131,7 @@ namespace backEnd.Core.Model
         /// </summary>
         /// <param name="session">Session pour transaction (optionnel)</param>
         /// <returns>Task</returns>
-        public virtual async Task SaveAsync(IMongoDbContext? dbContext = null, IClientSessionHandle? session = null)
+        public virtual async Task SaveAsync(IClientSessionHandle? session = null)
         {
             UpdatedAt = DateTime.UtcNow;
 
@@ -308,7 +308,7 @@ namespace backEnd.Core.Model
         public AbstractModel<T> SetDbContext(IMongoDbContext dbContext)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            return this;
+            return (T)this;
         }
     }
 }

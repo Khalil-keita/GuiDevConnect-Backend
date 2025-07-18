@@ -8,27 +8,27 @@ namespace backEnd.Src.Models
     /// <summary>
     /// Représente un sujet de discussion contenant plusieurs posts
     /// </summary>
-    public class Thread(IMongoDbContext dbContext) : AbstractModel<Thread>(dbContext)
+    public class Thread : AbstractModel<Thread>
     {
         /// <summary>
         /// Titre du sujet (visible dans la liste des threads)
         /// </summary>
         [BsonElement("title")]
-        public required string Title { get; set; }
+        public string?  Title { get; set; }
 
         /// <summary>
         /// ID du post initial qui a lancé la discussion
         /// </summary>
         [BsonElement("initial_post_id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public required string InitialPostId { get; set; }
+        public string? InitialPostId { get; set; }
 
         /// <summary>
         /// ID de la catégorie parente
         /// </summary>
         [BsonElement("category_id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public required string CategoryId { get; set; }
+        public string? CategoryId { get; set; }
 
         /// <summary>
         /// Nombre total de vues
@@ -57,11 +57,11 @@ namespace backEnd.Src.Models
         public string? LastPostId { get; set; }
 
         /// <summary>
-        /// Liste des participants (auteurs de posts)
+        /// Createur du thread
         /// </summary>
-        [BsonElement("participants")]
+        [BsonElement("creator_id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public List<string> ParticipantIds { get; set; } = [];
+        public List<string> CreatorId { get; set; } = [];
 
         /// <summary>
         /// Statut de verrouillage (empêche nouveaux posts)
@@ -75,10 +75,19 @@ namespace backEnd.Src.Models
         [BsonElement("is_pinned")]
         public bool IsPinned { get; set; } = false;
 
+        public Thread() { }
 
-        //public async Task<List<Post>> InitialPost() => await HasOne<Post>("initial_post_id");
-        //public async Task<List<Post>> LastPost() => await HasOne<Post>("last_post_id");
-        //public async Task<List<Category>> Category() => await HasOne<Category>();
+        public Thread(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        public async Task<User> Creator() => await BelongsTo<User>("creator_id");
+        public async Task<Category> Category() => await BelongsTo<Category>("category_id");
+        public async Task<List<Post>> Posts() => await HasMany<Post>("thread_id");
+        public async Task<List<Tag>> Tags() => await BelongsToMany<Tag>("thread_tags");
+        public async Task<Poll> Poll() => await HasOne<Poll>("thread_id");
+        public async Task<List<Report>> Reports() => await HasMany<Report>("content_id");
 
     }
 }

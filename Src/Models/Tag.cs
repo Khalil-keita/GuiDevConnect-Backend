@@ -8,31 +8,31 @@ namespace backEnd.Src.Models
     /// <summary>
     /// Représente un tag indépendant avec statistiques et métadonnées
     /// </summary>
-    public class Tag(IMongoDbContext dbContext) : AbstractModel<Tag>(dbContext)
+    public class Tag : AbstractModel<Tag>
     {
         /// <summary>
         /// Nom du tag (en minuscules, sans espaces)
         /// </summary>
         [BsonElement("name")]
-        public required string Name { get; set; }
+        public string? Name { get; set; }
 
         /// <summary>
         /// Version affichable du tag (avec majuscules et caractères spéciaux)
         /// </summary>
         [BsonElement("display_name")]
-        public required string DisplayName { get; set; }
+        public string? DisplayName { get; set; }
 
         /// <summary>
         /// Slug pour les URLs
         /// </summary>
         [BsonElement("slug")]
-        public required string Slug { get; set; }
+        public string? Slug { get; set; }
 
         /// <summary>
         /// Description du tag
         /// </summary>
         [BsonElement("description")]
-        public required string Description { get; set; }
+        public string? Description { get; set; }
 
         /// <summary>
         /// Nombre total de publications utilisant ce tag
@@ -62,20 +62,23 @@ namespace backEnd.Src.Models
         /// Icône associée (nom de classe FontAwesome ou URL)
         /// </summary>
         [BsonElement("icon")]
-        public required string Icon { get; set; }
-
-        /// <summary>
-        /// Relations avec d'autres tags
-        /// </summary>
-        [BsonElement("related_tags")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public List<string> RelatedTags { get; set; } = [];
+        public string? Icon { get; set; }
 
         /// <summary>
         /// Métadonnées SEO
         /// </summary>
         [BsonElement("meta")]
         public TagMeta? Meta { get; set; }
+
+        public Tag() { }
+
+        public Tag(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        public async Task<List<Thread>> Threads() => await BelongsToMany<Thread>("thread_tags");
+        public async Task<List<Post>> Posts() => await BelongsToMany<Post>("post_tags");
     }
 
     /// <summary>
@@ -87,13 +90,13 @@ namespace backEnd.Src.Models
         /// Titre pour les balises meta
         /// </summary>
         [BsonElement("title")]
-        public required string Title { get; set; }
+        public string? Title { get; set; }
 
         /// <summary>
         /// Description pour les balises meta
         /// </summary>
         [BsonElement("description")]
-        public required string Description { get; set; }
+        public string? Description { get; set; }
 
         /// <summary>
         /// Mots-clés pour le SEO

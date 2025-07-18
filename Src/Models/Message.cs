@@ -7,31 +7,25 @@ namespace backEnd.Src.Models
 {
     public class Message : AbstractModel<Message>
     {
-        public Message() { }
-
-        public Message(IMongoDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
         /// <summary>
         /// Expéditeur du message
         /// </summary>
         [BsonElement("sender_id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public required string SenderId { get; set; }
+        public string? SenderId { get; set; }
 
         /// <summary>
         /// Destinataire du message
         /// </summary>
         [BsonElement("recipient_id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public required string RecipientId { get; set; }
+        public string? RecipientId { get; set; }
 
         /// <summary>
         /// Contenu textuel
         /// </summary>
         [BsonElement("content")]
-        public required string Content { get; set; }
+        public string? Content { get; set; }
 
         /// <summary>
         /// Indique si le message a été lu
@@ -57,5 +51,15 @@ namespace backEnd.Src.Models
         /// </summary>
         [BsonElement("is_deleted_for_recipient")]
         public bool IsDeletedForRecipient { get; set; } = false;
+
+        public Message() { }
+
+        public Message(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        public async Task<User> Sender() => await BelongsTo<User>("sender_id");
+        public async Task<User> Receiver() => await BelongsTo<User>("recipient_id");
     }
 }

@@ -8,26 +8,20 @@ namespace backEnd.Src.Models
     /// <summary>
     /// Sondages associés aux posts
     /// </summary>
-    public class Poll(IMongoDbContext dbContext) : AbstractModel<Poll>(dbContext)
+    public class Poll : AbstractModel<Poll>
     {
         /// <summary>
         /// Post parent
         /// </summary>
         [BsonElement("post_id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public required string PostId { get; set; }
+        public string? PostId { get; set; }
 
         /// <summary>
         /// Question du sondage
         /// </summary>
         [BsonElement("question")]
-        public required string Question { get; set; }
-
-        /// <summary>
-        /// Options disponibles
-        /// </summary>
-        [BsonElement("options")]
-        public List<PollOption> Options { get; set; } = [];
+        public string? Question { get; set; }
 
         /// <summary>
         /// Date d'expiration
@@ -35,6 +29,13 @@ namespace backEnd.Src.Models
         [BsonElement("expires_at")]
         [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
         public DateTime? ExpiresAt { get; set; }
+
+        /// <summary>
+        /// Thread lié
+        /// </summary>
+        [BsonElement("thread_id")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public DateTime? ThreadId { get; set; }
 
         /// <summary>
         /// Sondage multi-choix
@@ -47,26 +48,15 @@ namespace backEnd.Src.Models
         /// </summary>
         [BsonElement("show_results_before_voting")]
         public bool ShowResultsBeforeVoting { get; set; } = false;
-    }
 
-    public class PollOption
-    {
-        /// <summary>
-        /// Texte de l'option
-        /// </summary>
-        [BsonElement("text")]
-        public string Text { get; set; }
+        public Poll() { }
 
-        /// <summary>
-        /// Nombre de votes
-        /// </summary>
-        [BsonElement("vote_count")]
-        public int VoteCount { get; set; } = 0;
+        public Poll(IMongoDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
 
-        /// <summary>
-        /// Pourcentage calculé (peut être stocké ou calculé à la volée)
-        /// </summary>
-        [BsonElement("percentage")]
-        public double Percentage { get; set; } = 0;
+        public async Task<Thread> Thread() => await BelongsTo<Thread>("thread_id");
+        public async Task<List<PollOption>> Options() => await HasMany<PollOption>("poll_id");
     }
 }

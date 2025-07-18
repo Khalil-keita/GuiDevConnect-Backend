@@ -10,6 +10,32 @@ namespace backEnd.Src.Models
     /// </summary>
     public class UserBookmark : AbstractModel<UserBookmark>
     {
+        /// <summary>
+        /// Utilisateur propriétaire du bookmark
+        /// </summary>
+        [BsonElement("user_id")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string? UserId { get; set; }
+
+        /// <summary>
+        /// ID de la cible (thread/post)
+        /// </summary>
+        [BsonElement("target_id")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string? TargetId { get; set; }
+
+        /// <summary>
+        /// Type de cible ('thread' ou 'post')
+        /// </summary>
+        [BsonElement("target_type")]
+        public string? TargetType { get; set; }
+
+        /// <summary>
+        /// Notes personnelles de l'utilisateur
+        /// </summary>
+        [BsonElement("notes")]
+        public string? Notes { get; set; }
+
         public UserBookmark() { }
 
         public UserBookmark(IMongoDbContext dbContext)
@@ -17,30 +43,8 @@ namespace backEnd.Src.Models
             _dbContext = dbContext;
         }
 
-        /// <summary>
-        /// Utilisateur propriétaire du bookmark
-        /// </summary>
-        [BsonElement("user_id")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public required string UserId { get; set; }
-
-        /// <summary>
-        /// ID de la cible (thread/post)
-        /// </summary>
-        [BsonElement("target_id")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public required string TargetId { get; set; }
-
-        /// <summary>
-        /// Type de cible ('thread' ou 'post')
-        /// </summary>
-        [BsonElement("target_type")]
-        public required string TargetType { get; set; }
-
-        /// <summary>
-        /// Notes personnelles de l'utilisateur
-        /// </summary>
-        [BsonElement("notes")]
-        public string? Notes { get; set; }
+        public async Task<User> User() => await BelongsTo<User>("user_id");
+        public async Task<Post> BookmarkedPost() => await BelongsTo<Post>("target_id");
+        public async Task<Thread> BookmarkedThread() => await BelongsTo<Thread>("target_id");
     }
 }
